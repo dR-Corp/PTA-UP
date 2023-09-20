@@ -30,7 +30,8 @@ class Router {
             // ce controllers ne doit pas concerner $vars
             throw new InvalidArgumentException("Les arguments doivent tous êtres des chaînes de caractères non vides !", 1);
         }
-        self::$rout[$url] = [
+        self::$rout[] = [
+            "url" => $url,
             "controller" => $controller,
             "method" => $method,
             "vars" => $vars
@@ -42,12 +43,12 @@ class Router {
         $this->routes = self::$rout;
     }
 
-    public function getRoute() {
-        $elements = explode('/', $this->request);
-        return $elements[0];
-    }
+    // public function getRoute() {
+    //     $elements = explode('/', $this->request);
+    //     return $elements[0];
+    // }
 
-    public function getParams() {
+    public function getParams($url) {
 
         $params = null;
 
@@ -67,30 +68,64 @@ class Router {
             }
         }
 
-        
-        $matches = preg_match('`^'.$this->request.'$`', $this->request, $matches);
+        // $matches = preg_match('`^'.$this->request.'$`', $url, $matches);
 
         echo '<pre>'; print_r($elements);
+        echo '<pre>'; print_r($this->request);
+        echo '<pre>'; print_r($url);
         echo '<pre>'; print_r($matches); exit;
+
         return $params;
+    }
+
+    public function match($url) {
+        if(preg_match('`^'.$url.'$`', $this->request, $matches))
+            return $matches;
+        else
+            return false;
     }
 
     public function renderController() {
 
-        $route = '/'.$this->getRoute();
-        $params = $this->getParams();
+        $matched = false;
 
-        if(key_exists($route, $this->routes)) {
-            
-            $controller = $this->routes[$route]['controller'];
-            $method = $this->routes[$route]['method'];
-
-            $currentController = new $controller();
-            $currentController->$method($params);
+        foreach($this->routes as $route) {
+            if(($varsValues = $this->match($route["url"])) !== false) {
+                $matched = true;
+                $params = null;
+                if($route["vars"] != "") {
+                    // echo '<pre>'; print_r($route);
+                    // echo '<pre>'; print_r($varsValues);
+                    $varNames = explode(',', $route['vars']);
+                    foreach($varsValues as $key => $value) {
+                        // La première valeur contient entièrement la chaine capturée donc on fera un $key-1
+                        if($key !== 0) {
+                            $params[$varNames[$key - 1]] = htmlspecialchars($value);
+                        }
+                    }
+                    // echo '<pre>'; print_r($params);                    
+                }
+                $controller = $route["controller"];
+                $method = $route["method"];
+                $currentController = new $controller();
+                $currentController->$method($params);
+            }
         }
-        else {
-            // echo "404";
-            // print_r($this->routes);
+        
+        // exit;
+        
+        // if(key_exists($route, $this->routes)) {
+
+        //     $params = $this->getParams($route);
+            
+        //     $controller = $this->routes[$route]['controller'];
+        //     $method = $this->routes[$route]['method'];
+
+        //     $currentController = new $controller();
+        //     $currentController->$method($params);
+        // }
+
+        if(!$matched) {
             $error404 = new Error404();
             $error404->render();
         }

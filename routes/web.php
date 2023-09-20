@@ -28,4 +28,4 @@ Router::setRoute("/users-create", "UsersController", "create");
 Router::setRoute("/users-update", "UsersController", "update");
 Router::setRoute("/users-delete", "UsersController", "delete");
 Router::setRoute("/users-delete", "UsersController", "delete");
-Router::setRoute("/user-([0-9]+)", "UsersController", "delete", "id");
+Router::setRoute("/users/(.+)/([0-9]+)", "UsersController", "delete", "name,id");

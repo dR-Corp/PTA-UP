@@ -2,6 +2,7 @@
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }    
+    $request = "/".$_GET['r'];
 ?>
 
 <!-- SIDEBAR ELEMENTS -->
@@ -15,7 +16,7 @@
     TACHES                      => taches
     VALIDER PTA                 => validations
     SUIVI DES TACHES            => suivi
-    ENGAGER UNE DEPENSE         => depense
+    ENGAGER UNE DEPENSE         => depenses
 
     STRUCTURES                  => structures
     USERS                       => users
@@ -87,8 +88,8 @@
             </a>
         </li>
 
-        <li class="nav-item mt-1 <?php if($request == '/depense') echo 'menu-open' ?>">
-            <a href="/depense" class="nav-link font-weight-bold <?php if($request == '/depense') echo 'active' ?>">
+        <li class="nav-item mt-1 <?php if($request == '/depenses') echo 'menu-open' ?>">
+            <a href="/depenses" class="nav-link font-weight-bold <?php if($request == '/depenses') echo 'active' ?>">
                 <i class="nav-icon fas fa-money-bill"></i>
                 <p>Engager une dépense</p>
             </a>

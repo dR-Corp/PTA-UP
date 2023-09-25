@@ -4,7 +4,7 @@ class HomeController extends Controller
     
     public function index($params) {
 
-        $view = new View('home');
+        $view = new PageView('home');
         
         $view->render([
             "titrePage" => "Tableau de bord"

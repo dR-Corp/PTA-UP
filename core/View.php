@@ -41,7 +41,14 @@ class View extends Page {
         include(VIEWS.$pageContent.'.php');
         $contentPage = ob_get_clean();
 
-        include_once(VIEWS.'templates/layout.php');
+        return [
+            "scripts" => $scripts,
+            "head" => $head,
+            "navbar" => $navbar,
+            "sidebar" => $sidebar,
+            "footer" => $footer,
+            "contentPage" => $contentPage,
+        ];
 
     }
     

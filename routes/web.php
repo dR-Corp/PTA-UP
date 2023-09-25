@@ -1,22 +1,20 @@
 <?php
 
-/*
 
-    DASHBOARD                   => home
+    // DASHBOARD                   => home
+    // ANNEES                      => annees
+    // SOUS PROGRAMMES             => spgrm
+    // OBJECTIF SPECIFIQUES        => objectifs
+    // ACTIONS                     => actions
+    // ACTIVITES                   => activites
+    // TACHES                      => taches
+    // VALIDER PTA                 => validations
+    // SUIVI DES TACHES            => suivi
+    // ENGAGER UNE DEPENSE         => depenses
 
-    ANNEES                      => annees
-    SOUS PROGRAMMES             => spg
-    OBJECTIF SPECIFIQUES        => objectifs
-    ACTIONS                     => actions
-    ACTIVITES                   => activites
-    TACHES                      => taches
-    VALIDER PTA                 => validations
-    SUIVI DES TACHES            => suivi
-    ENGAGER UNE DEPENSE         => depense
-
-    USERS                       => users
-
-*/
+    // STRUCTURES                  => structures
+    // USERS                       => users
+    // Profil                      => profil
 
 // DASHBOARD
 Router::setRoute("/", "HomeController", "index");
@@ -29,3 +27,8 @@ Router::setRoute("/users-update", "UsersController", "update");
 Router::setRoute("/users-delete", "UsersController", "delete");
 Router::setRoute("/users-delete", "UsersController", "delete");
 Router::setRoute("/users/(.+)/([0-9]+)", "UsersController", "delete", "name,id");
+
+// SOUS PROGRAMMES
+
+Router::setRoute("/spgrm", "SousProgController", "index");
+Router::setRoute("/spgrm-configs", "ProgrammeController", "configs");

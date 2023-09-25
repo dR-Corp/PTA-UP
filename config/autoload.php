@@ -26,6 +26,9 @@ class MyAutoload {
 
         define('ASSETS', HOST.'//assets/');
         define('STORAGES', HOST.'//storage/');
+        
+        define('SCRIPTS', HOST.'//Scripts/');
+        // C:/xampp/htdocs/PTA/public/../app/views/Scripts/crud.js
     }
 
     public static function autoload($class) {

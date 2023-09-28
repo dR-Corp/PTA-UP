@@ -1,5 +1,5 @@
 <?php
-class UserController extends Controller
+class StructureController extends Controller
 {
     
     public function index($params) {
@@ -11,9 +11,9 @@ class UserController extends Controller
         $view = new CRUDView('crud');
         
         $view->render([
-            "titrePage" => "Utilisateurs",
-            "attributs" => User::attributs(),
-            'entity' => User::class,
+            "titrePage" => "Structures",
+            "attributs" => Structure::attributs(),
+            'entity' => Structure::class,
         ]);
 
     }

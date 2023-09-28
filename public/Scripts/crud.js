@@ -11,14 +11,27 @@ $(function () {
 
     // LES COLONNES
     var columns = [];
-    attributs.forEach(attribut => {
-        columns.push({"data": attribut.name})
+    var hidden_cols = [];
+    var index = 0;
+    attributs.forEach((attribut) => {
+        if(!attribut.fillable || (attribut.fillable && attribut.input_type != 'password')) {
+            if(attribut.foreign_key) {
+                columns.push({"data": attribut.name})
+                columns.push({"data": attribut.ref+'_'+attribut.ref_lib})
+                hidden_cols.push(index)
+            }
+            else {
+                columns.push({"data": attribut.name})
+            }
+            index++;
+        }
     });
+    
     columns.push(
         {
             "data": null,
             render: function(data, type, row) {
-                return `<button data-toggle="tooltip" data-placement="bottom" title="Modifier" class="btn btn-sm editBtn"><i class="fas fa-edit"></i></button>
+                return `<button data-toggle="tooltip" data-placement="bottom" title="Modifier" class="btn btn-sm editBtn"><ndexi class="fas fa-edit"></i></button>
                         <button data-toggle="tooltip" data-placement="bottom" title="Supprimer" class="btn btn-sm removeBtn"><i class="fas fa-trash"></i></button>`;
             }
         }
@@ -30,6 +43,7 @@ $(function () {
         "serverSide": true,
         "processing": true,
         "deferRender": true,
+        "stateSave": true,
         "drawCallback": function (setting, json) {
 
             console.log("all data are loaded into table");
@@ -65,12 +79,11 @@ $(function () {
         "ajax": '/data/'+entity,
         "columns": columns,
         "columnDefs": [
-            // Les elements qui sont des foreign key, seront caché, au profil du libelle de l'eleemnt en reference
-            // {
-            //     "targets": [13,14,15,16],
-            //     "visible": false,
-            //     "searchable": false
-            // }
+            {
+                "targets": hidden_cols,
+                "visible": false,
+                "searchable": false
+            }
         ],
         "responsive": false,
         "autoWidth": false,
@@ -114,12 +127,13 @@ $(function () {
     })
 
     // RELOAD DU DATATABLE ET AFFICHAGE DU MESSAGE
-    function notify(data) {
-        datatable.ajax.reload(null, true);
+    function reload_notify(data) {
+
+        if(data.alert == "success") datatable.ajax.reload(null, false);
 
         const Toast = Swal.mixin({
             toast: true,
-            position: 'bottom-end',
+            position: 'bottom',
             showConfirmButton: false,
             timer: 5000
         });
@@ -156,51 +170,69 @@ $(function () {
                 // si tout s'est bien passé on fait disparaitre le modal
                 if(data.alert == "success") $('#addModal').modal('hide');
                 
-                notify(data);
+                reload_notify(data);
                       
             }
         });
     }
 
+    //L'IDENTIFIANT SELECTIONNE
+    var currentId = "";
+
     // AFFICHAGE DU FORMULAIRE DE MODIFICATION
-    $(document).on('click', '.editBtn', function(){
+    $(document).on('click', '.editBtn', function() {
 
         $('#updateModal').modal('show');
-    
-        // Get the table row data.
-        $tr = $(this).closest('tr');
-    
-        var data = $tr.children("td").map(function() {
-            return $(this).text();
-        }).get();
 
         var currentRow = $(this).closest('tr');
-        var data = $('#table_articles').DataTable().row(currentRow).data()
-        var currentIdArticle = data['idArticle'];
-        var currentTitre = data['titre'];
-        var currentDescription = data['description'];
-        var currentLiens = data['liens'];
-        var currentNbrMots = data['nbrMots'];
-        var currentDelai = data['delai'];
-        var currentUrgence = data['urgence'];
+        var data = datatable.row(currentRow).data()
+        currentId = data.id;
 
-        $('#m_idArticle').val(currentIdArticle);
-        $('#m_titre').val(currentTitre);
-        $('#updateModal .textarea').summernote('code', currentDescription);
-        // alert(data[1]);
-        // document.getElementById('m_description').innerHTML = data[1];
-        $('#m_nbrMots').val(currentNbrMots);
-        currentUrgence == 1 ? $('#m_urgence').val("true") : $('#m_urgence').val("false");
-        // $('#m_delai').val(data[7]);
-        selectionner('m_delai', currentDelai);
+        attributs.forEach(attribut => {
+            if(attribut.fillable) {
+                $('#m_'+attribut.name).val(data[attribut.name]);
+            }
+        });
 
-        //document.getElementById("form_id").action = "up-article.html/id/"+data[6];
+        // $('#updateModal .textarea').summernote('code', currentDescription);        
+        // IN CASE OF SELECT ELEMENT WXE NEED TO USE THIS ONE 
+        // selectionner('m_delai', currentDelai);
 
     });
 
-    var currentId = "";
-
     // MODIFICATION
+    $('#updateBtn').on('click', function() {
+
+        var data = {};
+
+        attributs.forEach(attribut => {
+            if(attribut.fillable) data[attribut.name] = $('#m_'+attribut.name).val();
+        });
+        
+        modifier(currentId, data);
+
+    })
+
+    // FONCTION DE GESTION DE LA MODIFICATION
+    function modifier(id, data) {
+
+        $.ajax({
+            url: "/edit/"+entity+"/"+id,
+            type: "POST",
+            data,
+            cache: false,
+            success: function(data){
+                
+                var data = JSON.parse(data);
+
+                if(data.alert == "success") $('#updateModal').modal('hide');
+                
+                reload_notify(data);
+                      
+            }
+        });
+        
+    }
 
     // AFFICHAGE DE LA CONFIRMATION DE SUPPRESSION
     $(document).on('click', '.removeBtn', function(){
@@ -229,7 +261,7 @@ $(function () {
                 // si tout s'est bien passé on fait disparaitre le modal
                 if(data.alert == "success") $('#deleteModal').modal('hide');
                 
-                notify(data);
+                reload_notify(data);
                       
             }
         });

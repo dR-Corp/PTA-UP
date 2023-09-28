@@ -31,11 +31,18 @@
                                 white-space: nowrap;
                             }
                         </style>
-                        <table id="datatable" class="table table-bordered table-striped table-sm">
+                        <table id="datatable" class="table table-bordered table-striped table-sm text-sm">
                             <thead>
-	                            <tr>
+                                <tr>
                                     <?php foreach ($attributs as $attribut): ?>
-	                                <th scope="col"><?= $attribut['lib'] ?></th>
+                                        <?php if(!$attribut['fillable'] || ($attribut['fillable'] && $attribut['input_type'] != 'password')): ?>
+                                            <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key']): ?>
+                                                <th hidden scope="col"><?= $attribut['lib'] ?></th>
+                                                <th scope="col"><?= $attribut['lib'] ?></th>
+                                            <?php else: ?>
+                                                <th scope="col"><?= $attribut['lib'] ?></th>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
 	                                <th scope="col">Actions</th>
 	                            </tr>
@@ -43,9 +50,16 @@
                             <tbody>
 	                        </tbody>
                             <tfoot>
-	                            <tr>
+                                <tr>
                                     <?php foreach ($attributs as $attribut): ?>
-	                                <th scope="col"><?= $attribut['lib'] ?></th>
+                                        <?php if(!$attribut['fillable'] || ($attribut['fillable'] && $attribut['input_type'] != 'password')): ?>
+                                            <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key']): ?>
+                                                <th hidden scope="col"><?= $attribut['lib'] ?></th>
+                                                <th scope="col"><?= $attribut['lib'] ?></th>
+                                            <?php else: ?>
+                                                <th scope="col"><?= $attribut['lib'] ?></th>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
 	                                <th scope="col">Actions</th>
 	                            </tr>
@@ -83,12 +97,20 @@
                                 <textarea name="values[liens]" id="liens" cols="30" rows="3" class="form-control" <?= $attribut['required'] ?>></textarea>
                             <?php elseif($attribut['input_type'] == "number"): ?>
                                 <input type="number" class="form-control" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?> />
+                            <?php elseif($attribut['input_type'] == "password"): ?>
+                                <input type="password" class="form-control" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?> />
                             <?php elseif($attribut['input_type'] == "select"): ?>
-                                <select class="form-control custom-select" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?>>
+                                <select class="form-control select2 custom-select" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?>>
                                     <option value=""></option>
-                                    <?php foreach($choices as $choice): ?>
-                                        <option value="<?= $choice['id'] ?>"><?= $choice['value'] ?></option>
-                                    <?php endforeach; ?>
+                                    <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key'] == true): ?>
+                                        <?php foreach($attribut['ref_class']::all() as $value): ?>
+                                            <option value="<?= $value->getId() ?>"><?= $value->getCode() ? $value->getCode() : $value->getLibelle() ?></option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <?php foreach($attribut['input_values'] as $id => $lib): ?>
+                                            <option value="<?= $id ?>"><?= $lib ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             <?php elseif($attribut['input_type'] == "checkbox"): ?>
                                 <input type="checkbox" name="" id="">
@@ -101,11 +123,74 @@
                 <?php endforeach; ?>
                 
             </div>
+
             <div class="modal-footer justify-content-between">
                 <button id="addBtn" class="btn btn-block btn-outline-primary">Créer</button>
             </div>
+
         </div>
     </div>
+</div>
+
+<!-- updateModal -->
+<div class="modal fade" id="updateModal">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+
+            <div class="modal-header bg-light">
+                <h4 class="modal-title">Modification</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                
+                <?php foreach ($attributs as $attribut): ?>
+                    <div class="form-group">
+                        <?php if($attribut['fillable']): ?>
+                            <label for="titre"><?= $attribut['lib'] ?></label>
+                            <?php if($attribut['input_type'] == "text"): ?>
+                                <input type="text" class="form-control" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?> />
+                            <?php elseif($attribut['input_type'] == "textarea"): ?>
+                                <textarea name="values[liens]" id="liens" cols="30" rows="3" class="form-control" <?= $attribut['required'] ?>></textarea>
+                            <?php elseif($attribut['input_type'] == "number"): ?>
+                                <input type="number" class="form-control" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?> />
+                            <?php elseif($attribut['input_type'] == "password"): ?>
+                                <input type="password" class="form-control" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?> />
+                            <?php elseif($attribut['input_type'] == "select"): ?>
+                                <select class="form-control select2 custom-select" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?>>
+                                    <option value=""></option>
+                                    <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key'] == true): ?>
+                                        <?php foreach($attribut['ref_class']::all() as $value): ?>
+                                            <option value="<?= $value->getId() ?>"><?= $value->getCode() ? $value->getCode() : $value->getLibelle() ?></option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <?php foreach($attribut['input_values'] as $id => $lib): ?>
+                                            <option value="<?= $id ?>"><?= $lib ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            <?php elseif($attribut['input_type'] == "checkbox"): ?>
+                                <input type="checkbox" name="" id="">
+                            <?php elseif($attribut['input_type'] == "radio"): ?>
+                                <input type="radio" name="" id="">
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                    <th scope="col"></th>
+                <?php endforeach; ?>
+                
+            </div>
+
+            <div class="modal-footer justify-content-between">
+                <button id="updateBtn" class="btn btn-block btn-outline-warning">Modifier</button>
+            </div>
+        
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 
 <!-- deleteModal -->

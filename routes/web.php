@@ -20,21 +20,24 @@ Router::setRoute("/", "HomeController", "index");
 Router::setRoute("/home", "HomeController", "index");
 
 // USERS
-Router::setRoute("/users", "UsersController", "index");
-Router::setRoute("/users-create", "UsersController", "create");
-Router::setRoute("/users-update", "UsersController", "update");
-Router::setRoute("/users-delete", "UsersController", "delete");
-Router::setRoute("/users-delete", "UsersController", "delete");
-Router::setRoute("/users/(.+)/([0-9]+)", "UsersController", "delete", "name,id");
+Router::setRoute("/users", "UserController", "index");
+Router::setRoute("/users-create", "UserController", "create");
+Router::setRoute("/users-update", "UserController", "update");
+Router::setRoute("/users-delete", "UserController", "delete");
+Router::setRoute("/users-delete", "UserController", "delete");
+Router::setRoute("/users/(.+)/([0-9]+)", "UserController", "delete", "name,id");
 
 // SOUS PROGRAMMES
 Router::setRoute("/spgrm", "SousProgController", "index");
-Router::setRoute("/spgrm-configs", "SousProgController", "configs");
-Router::setRoute("/spgrm-spp-data", "SousProgController", "SPPData");
+
+// STRUCTURES
+Router::setRoute("/structures", "StructureController", "index");
 
 // Recuperation de donnees
 Router::setRoute("/data/(.+)", "Controller", "dataSPP", 'entity');
 // Ajout de données
 Router::setRoute("/add/(.+)", "Controller", "add", 'entity');
+// Modification de donnees
+Router::setRoute("/edit/(.+)/([0-9]+)", "Controller", "edit", 'entity,id');
 // Suppression de donnees
 Router::setRoute("/del/(.+)/([0-9]+)", "Controller", "del", 'entity,id');

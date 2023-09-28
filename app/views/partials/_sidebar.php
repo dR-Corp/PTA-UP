@@ -77,7 +77,7 @@
         <li class="nav-item mt-1 <?php if($request == '/validations') echo 'menu-open' ?>">
             <a href="/validations" class="nav-link font-weight-bold <?php if($request == '/validations') echo 'active' ?>">
                 <i class="nav-icon fas fa-calendar-check"></i>
-                <p>Valider pda</p>
+                <p>Valider PTA</p>
             </a>
         </li>
 

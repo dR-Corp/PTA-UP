@@ -23,7 +23,7 @@
 	}
 
 
-	class SSP {
+	class SSP_copy {
 		/**
 		 * Create the data output array for the DataTables rows
 		 *
@@ -52,8 +52,7 @@
 					}
 					else {
 						if(!empty($column['db'])){
-							$row[ $column['dt'] ] = $data[$i][ $j ];
-							// $row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ];
+							$row[ $column['dt'] ] = $data[$i][ $columns[$j]['db'] ];
 						}
 						else{
 							$row[ $column['dt'] ] = "";
@@ -123,9 +122,9 @@
 		 */
 		static function order ( $request, $columns )
 		{
-			$order = "";
+			$order = '';
 
-			if ( isset($request['order']) && count($request['order']) ) { 
+			if ( isset($request['order']) && count($request['order']) ) {
 				$orderBy = array();
 				$dtColumns = self::pluck( $columns, 'dt' );
 
@@ -142,7 +141,7 @@
 							'ASC' :
 							'DESC';
 
-						$orderBy[] = $column['db'].' '.$dir;
+						$orderBy[] = '`'.$column['db'].'` '.$dir;
 					}
 				}
 
@@ -150,7 +149,7 @@
 					$order = 'ORDER BY '.implode(', ', $orderBy);
 				}
 			}
-			
+
 			return $order;
 		}
 
@@ -187,7 +186,7 @@
 					if ( $requestColumn['searchable'] == 'true' ) {
 						if(!empty($column['db'])){
 							$binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
-							$globalSearch[] = $column['db']." LIKE ".$binding;
+							$globalSearch[] = "`".$column['db']."` LIKE ".$binding;
 						}
 					}
 				}
@@ -206,7 +205,7 @@
 					$str != '' ) {
 						if(!empty($column['db'])){
 							$binding = self::bind( $bindings, '%'.$str.'%', PDO::PARAM_STR );
-							$columnSearch[] = $column['db']." LIKE ".$binding;
+							$columnSearch[] = "`".$column['db']."` LIKE ".$binding;
 						}
 					}
 				}
@@ -336,8 +335,7 @@
 			$primaryKey,
 			$columns,
 			$whereResult=null,
-			$whereAll=null,
-			$joined=null
+			$whereAll=null
 		) {
 			$bindings = array();
 			$whereAllBindings = array();
@@ -354,13 +352,6 @@
 			$limit = self::limit( $request, $columns );
 			$order = self::order( $request, $columns );
 			$where = self::filter( $request, $columns, $bindings );
-			
-			//test scope-----------------------------------------------------------------
-			// file_put_contents("debug.json" , json_encode($where));
-			//close test scope--------------------------------------------------------------
-
-			$relation_and = (isset($joined['join']) && $joined['join'] && !$where) ? $joined['relation_and'] : '';
-			$relation = (isset($joined['join']) && $joined['join']) ? $joined['relation'] : '';
 
 			// whereResult can be a simple string, or an assoc. array with a
 			// condition and bindings
@@ -377,7 +368,7 @@
 
 				$where = $where ?
 					$where .' AND '.$str :
-					'WHERE '.$relation_and.$str;
+					'WHERE '.$str;
 			}
 
 			// Likewise for whereAll
@@ -394,51 +385,35 @@
 
 				$where = $where ?
 					$where .' AND '.$str :
-					'WHERE '.$relation_and.$str;
+					'WHERE '.$str;
 
-				$whereAllSql = 'WHERE '.$relation_and.$str;
+				$whereAllSql = 'WHERE '.$str;
 			}
 
-			if(!$where && isset($joined['join']) && $joined['join']) {//--------------------------------------------------------------------------------------------
-				$where = 'WHERE '.$relation;
-			}//-------------------------------------------------------------------------------------------------------
-
-			// ---------------------------- UNMIMED ----------------------------------------
-
 			// Main query to actually get the data
-			$sql = "SELECT ".implode(", ", self::pluck($columns, 'db'));
-
-			$data = self::sql_exec( $db, $bindings, 
-				"$sql 
+			$data = self::sql_exec( $db, $bindings,
+				"SELECT `".implode("`, `", self::pluck($columns, 'db'))."`
 				FROM $table
 				$where
 				$order
-				$limit");
-
-			// FINAL QUERY SHOWN
-			// echo "<pre>"; print_r("$sql \nFROM $table \n$where \n$order \n$limit");
-			// file_put_contents("debug.json" , json_encode($order));
+				$limit"
+			);
 
 			// Data set length after filtering
 			$resFilterLength = self::sql_exec( $db, $bindings,
-				"SELECT COUNT({$primaryKey})
-				 FROM   $table
-				 $where"
+				"SELECT COUNT(`{$primaryKey}`)
+				FROM   $table
+				$where"
 			);
 			$recordsFiltered = $resFilterLength[0][0];
 
-			//Total data set length
-			if(!$whereAllSql && isset($joined['join']) && $joined['join']) {//--------------------------------------------------------------------------------------------
-				$whereAllSql = 'WHERE '.$relation;
-			}//---------------------------------------------------------------------------------------------------------
+			// Total data set length
 			$resTotalLength = self::sql_exec( $db,
-				"SELECT COUNT({$primaryKey})
-				 FROM   $table ".
+				"SELECT COUNT(`{$primaryKey}`)
+				FROM   $table ".
 				$whereAllSql
 			);
 			$recordsTotal = $resTotalLength[0][0];
-
-			// ------------------------ END UNMIMED ---------------------------------
 
 			/*
 			* Output
@@ -556,8 +531,7 @@
 			//Total data set length
 			if(!$whereAllSql && isset($request['join']) && $request['join']) {//--------------------------------------------------------------------------------------------
 				$whereAllSql = 'WHERE '.$joine;
-			}
-			//---------------------------------------------------------------------------------------------------------
+			}//---------------------------------------------------------------------------------------------------------
 			$resTotalLength = self::sql_exec( $db,
 				"SELECT COUNT(`{$primaryKey}`)
 				 FROM   $table ".

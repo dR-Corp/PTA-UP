@@ -18,29 +18,4 @@ class SousProgController extends Controller
 
     }
 
-    public function configs($params) {        
-        return SousProgramme::attributs();
-    }
-
-    public function SPPData($params) {
-        
-        // DB table to use
-        $table = 'sous_programmes';
-        
-        // Table's primary key
-        $primaryKey = 'id';
-
-        $columns = array(
-            array( 'db' => 'id', 'dt' => 'id' ),
-            array( 'db' => 'libelle', 'dt' => 'libelle' )    
-        );
-        
-        $sql_details = "";
-        $where = "";
-        $sous_programmes = SSP::complex($_GET, $sql_details, $table, $primaryKey, $columns, null, $where);
-    
-        echo json_encode($sous_programmes, JSON_UNESCAPED_UNICODE);
-
-    }
-
 }

@@ -1,14 +1,16 @@
 <?php
 
 class DBConn {
+
     private $host = "localhost";
     private $username = "root";
-    private $password = "";
+    private $password = "154826";
     private $dbname = "pta";
     private $db;
     private $table;
 
-    public function __construct($table) {
+
+    public function __construct($table = "") {
         $this->table = $table; // on inittialise la valeur de la table
         try {
             // $this->db = new PDO("mysql:host=$this->host;dbname=$this->dbname;charset=utf8", $this->username, $this->password, array(PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION));
@@ -19,9 +21,13 @@ class DBConn {
         }
     }
 
-    // public function db() {
-    //     return $this->db;
-    // }
+    public function setTable($table) {
+        $this->table = $table;
+    }
+
+    public function db() {
+        return $this->db;
+    }
     
     private function validateData($data) {
         // Implement validation logic here

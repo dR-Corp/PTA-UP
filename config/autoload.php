@@ -28,6 +28,8 @@ class MyAutoload {
         define('STORAGES', HOST.'//storage/');
         
         define('SCRIPTS', HOST.'//Scripts/');
+
+        // echo "<pre>"; print_r(HOST); exit;
         // C:/xampp/htdocs/PTA/public/../app/views/Scripts/crud.js
     }
 

@@ -52,6 +52,6 @@
 <!-- sweetalert2 -->
 <script src="<?=ASSETS;?>LTE/package/dist/sweetalert2.all.min.js"></script>
 
-<script src="<?= ASSETS ?>LTE/plugins/xlsx/xlsx.full.min.js"></script>
+<!-- <script src="<?= ASSETS ?>LTE/plugins/xlsx/xlsx.full.min.js"></script>
 <script src="<?= ASSETS ?>LTE/plugins/xlsx/FileSaver.js"></script>
-<script src="<?= ASSETS ?>LTE/plugins/xlsx/jhxlsx.js"></script>
+<script src="<?= ASSETS ?>LTE/plugins/xlsx/jhxlsx.js"></script> -->

@@ -85,6 +85,10 @@ class Model {
         }
         $this->id = $id;
     }
+    //TABLE GETTER
+    public function table() {
+        return $this->table;
+    }
     
     /**
      * Méthode assignant les valeurs spécifiées aux attributs correspondant.

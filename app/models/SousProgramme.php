@@ -7,9 +7,9 @@ class SousProgramme extends Model {
 
     protected $fillable = ['libelle'];
 
-    protected $attrs = [
+    protected static $attributs = [
         [
-            'name' =>  'id', 
+            'name' =>  'id',
             'lib' => '#ID',
             'type' => 'int',
             'fillable' => false,
@@ -29,8 +29,8 @@ class SousProgramme extends Model {
         ],
     ];
     
-    public function attrs() {
-        return $this->attrs;
+    public static function attributs() {
+        return self::$attributs;
     }
 
     // i'm going to manage here all the relation, in the other modals

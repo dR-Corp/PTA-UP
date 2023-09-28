@@ -1,4 +1,3 @@
-<!-- <style> * { color: white; background: black; } </style> -->
 <?php
     
     session_start();

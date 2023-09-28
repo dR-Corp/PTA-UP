@@ -1,3 +1,6 @@
+<input type="hidden" id="entity" value="<?=$entity?>">
+<input type="hidden" id="attributs" value="<?= htmlentities(json_encode($attributs, true)) ?>">
+
 <!-- Content Header (Page header) -->
 <div class="content-header">
     <div class="container-fluid">
@@ -28,13 +31,12 @@
                                 white-space: nowrap;
                             }
                         </style>
-                        <table id="table_articles" class="table table-bordered table-striped">
+                        <table id="datatable" class="table table-bordered table-striped table-sm">
                             <thead>
 	                            <tr>
                                     <?php foreach ($attributs as $attribut): ?>
 	                                <th scope="col"><?= $attribut['lib'] ?></th>
                                     <?php endforeach; ?>
-	                                <!-- <th hidden scope="col">ID Article</th> -->
 	                                <th scope="col">Actions</th>
 	                            </tr>
 	                        </thead>
@@ -45,13 +47,10 @@
                                     <?php foreach ($attributs as $attribut): ?>
 	                                <th scope="col"><?= $attribut['lib'] ?></th>
                                     <?php endforeach; ?>
-	                                <!-- <th hidden scope="col">ID Article</th> -->
 	                                <th scope="col">Actions</th>
 	                            </tr>
 	                        </tfoot>
                         </table>
-                    </div>
-                    <!-- /.card-body -->
                     </div>
                 </div>
             </div>
@@ -103,14 +102,10 @@
                 
             </div>
             <div class="modal-footer justify-content-between">
-                <button id="addForm" class="btn btn-block btn-outline-primary">Créer</button>
+                <button id="addBtn" class="btn btn-block btn-outline-primary">Créer</button>
             </div>
         </div>
     </div>
 </div>
-
-<?php
-//  echo SCRIPTS;
-?>
 
 <script src="<?= SCRIPTS ?>crud.js"></script>

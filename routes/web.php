@@ -1,6 +1,5 @@
 <?php
 
-
     // DASHBOARD                   => home
     // ANNEES                      => annees
     // SOUS PROGRAMMES             => spgrm
@@ -29,6 +28,11 @@ Router::setRoute("/users-delete", "UsersController", "delete");
 Router::setRoute("/users/(.+)/([0-9]+)", "UsersController", "delete", "name,id");
 
 // SOUS PROGRAMMES
-
 Router::setRoute("/spgrm", "SousProgController", "index");
-Router::setRoute("/spgrm-configs", "ProgrammeController", "configs");
+Router::setRoute("/spgrm-configs", "SousProgController", "configs");
+Router::setRoute("/spgrm-spp-data", "SousProgController", "SPPData");
+
+// Recuperation de donnees
+Router::setRoute("/data/(.+)", "Controller", "SPPData", 'entity');
+// Ajout de données
+Router::setRoute("/add/(.+)", "Controller", "add", 'entity');

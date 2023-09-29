@@ -37,4 +37,4 @@ Router::setRoute("/data/(.+)", "Controller", "dataSPP", 'entity');
 // Ajout de données
 Router::setRoute("/add/(.+)", "Controller", "add", 'entity');
 // Suppression de donnees
-Router::setRoute("/del/(.+)/([0-9]+)", "Controller", "del", 'entity, id');
+Router::setRoute("/del/(.+)/([0-9]+)", "Controller", "del", 'entity,id');

@@ -26,7 +26,7 @@ class Controller
         extract($params); // entity
 
         if(is_numeric($id)) {
-            $res = ($entite::find($id))->delete();
+            $res = ($entity::find($id))->delete();
             if($res->getId()) {
                 $alert = [ "alert" => "success", "message" => "Suppression effectué !" ];
             }

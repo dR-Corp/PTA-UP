@@ -108,7 +108,7 @@ class DBConn {
                 return false;
             }
         } catch (PDOException $e) {
-            echo "Update Error: " . $e->getMessage();
+            echo "Delete Error: " . $e->getMessage();
             // Log::error("Update Error: " . $e->getMessage());
             return false;
         }
@@ -116,7 +116,6 @@ class DBConn {
 
     public function get($id) {
         $sql = "SELECT * FROM $this->table WHERE id = :id";
-        echo $sql;
         $stmt = $this->db->prepare($sql);
         $this->bindParams($stmt, array("id" => $id));
         $stmt->execute();

@@ -18,8 +18,8 @@ $(function () {
         {
             "data": null,
             render: function(data, type, row) {
-                return `<button class="btn btn-sm editBtn"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm deleteBtn"><i class="fas fa-trash"></i></button>`;
+                return `<button data-toggle="tooltip" data-placement="bottom" title="Modifier" class="btn btn-sm editBtn"><i class="fas fa-edit"></i></button>
+                        <button data-toggle="tooltip" data-placement="bottom" title="Supprimer" class="btn btn-sm removeBtn"><i class="fas fa-trash"></i></button>`;
             }
         }
     )
@@ -113,6 +113,22 @@ $(function () {
         });
     })
 
+    // RELOAD DU DATATABLE ET AFFICHAGE DU MESSAGE
+    function notify(data) {
+        datatable.ajax.reload(null, true);
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            timer: 5000
+        });
+        Toast.fire({
+            icon: data.alert,
+            title: data.message
+        });
+    }
+
     // AJOUT
     $('#addBtn').on('click', function() {
 
@@ -122,11 +138,11 @@ $(function () {
             if(attribut.fillable) data[attribut.name] = $('#'+attribut.name).val();
         });
 
-        ajouterArticle(data);
+        ajouter(data);
     })
 
     // FUNCTION DE GESTION DE L'AJOUT
-    function ajouterArticle(data) {
+    function ajouter(data) {
         
         $.ajax({
             url: "/add/"+entity,
@@ -140,25 +156,97 @@ $(function () {
                 // si tout s'est bien passé on fait disparaitre le modal
                 if(data.alert == "success") $('#addModal').modal('hide');
                 
-                datatable.ajax.reload(null, true);
-
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'bottom-end',
-                    showConfirmButton: false,
-                    timer: 5000
-                });
-                Toast.fire({
-                    icon: data.alert,
-                    title: data.message
-                });
+                notify(data);
                       
             }
         });
     }
 
+    // AFFICHAGE DU FORMULAIRE DE MODIFICATION
+    $(document).on('click', '.editBtn', function(){
+
+        $('#updateModal').modal('show');
+    
+        // Get the table row data.
+        $tr = $(this).closest('tr');
+    
+        var data = $tr.children("td").map(function() {
+            return $(this).text();
+        }).get();
+
+        var currentRow = $(this).closest('tr');
+        var data = $('#table_articles').DataTable().row(currentRow).data()
+        var currentIdArticle = data['idArticle'];
+        var currentTitre = data['titre'];
+        var currentDescription = data['description'];
+        var currentLiens = data['liens'];
+        var currentNbrMots = data['nbrMots'];
+        var currentDelai = data['delai'];
+        var currentUrgence = data['urgence'];
+
+        $('#m_idArticle').val(currentIdArticle);
+        $('#m_titre').val(currentTitre);
+        $('#updateModal .textarea').summernote('code', currentDescription);
+        // alert(data[1]);
+        // document.getElementById('m_description').innerHTML = data[1];
+        $('#m_nbrMots').val(currentNbrMots);
+        currentUrgence == 1 ? $('#m_urgence').val("true") : $('#m_urgence').val("false");
+        // $('#m_delai').val(data[7]);
+        selectionner('m_delai', currentDelai);
+
+        //document.getElementById("form_id").action = "up-article.html/id/"+data[6];
+
+    });
+
+    var currentId = "";
 
     // MODIFICATION
 
+    // AFFICHAGE DE LA CONFIRMATION DE SUPPRESSION
+    $(document).on('click', '.removeBtn', function(){
+        $('#deleteModal').modal('show');
+        var currentRow = $(this).closest('tr');
+        var data = datatable.row(currentRow).data()
+        currentId = data.id
+    }); 
+
+    // SUPPRESSION
+    $('#deleteBtn').on('click', function() {
+        supprimer(currentId);
+    })
+
+    // FONCTION DE GESTION DE LA SUPPRESSION
+    function supprimer(id) {
+        
+        $.ajax({
+            url: "/del/"+entity+"/"+id,
+            type: "GET",
+            cache: false,
+            success: function(data) {
+
+                var data = JSON.parse(data);
+
+                // si tout s'est bien passé on fait disparaitre le modal
+                if(data.alert == "success") $('#deleteModal').modal('hide');
+                
+                notify(data);
+                      
+            }
+        });
+        
+    }
+
+    // FONCTION DE GESTION DE LA SUPPRESSION
+
+    function selectionner(selectId, optionValToSelect) {
+        var selectElement = document.getElementById(selectId);
+        var selectOptions = selectElement.options;
+        for (var opt, j = 0; opt = selectOptions[j]; j++) {
+            if (opt.value == optionValToSelect) {
+                selectElement.selectedIndex = j;
+                break;
+            }
+        }
+    }
 
 })

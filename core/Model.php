@@ -159,6 +159,7 @@ class Model {
         }
         
         throw new Exception("Vous ne pouvez pas modifier un élément qui n'existe pas !", 1);
+        return false;
 
     }
 
@@ -238,12 +239,17 @@ class Model {
     }
 
     public function delete() {
+        
         $id = $this->id() ?? null;
 
         if ($id !== null) {
-            return $this->connection->delete($id);
+            if($this->connection->delete($id)) {
+                return $this;
+            }
+            return null;
         }
 
+        throw new Exception("Vous ne pouvez pas supprimer un élément qui n'existe pas !", 1);
         return false;
     }
 

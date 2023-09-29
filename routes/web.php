@@ -33,6 +33,8 @@ Router::setRoute("/spgrm-configs", "SousProgController", "configs");
 Router::setRoute("/spgrm-spp-data", "SousProgController", "SPPData");
 
 // Recuperation de donnees
-Router::setRoute("/data/(.+)", "Controller", "SPPData", 'entity');
+Router::setRoute("/data/(.+)", "Controller", "dataSPP", 'entity');
 // Ajout de données
 Router::setRoute("/add/(.+)", "Controller", "add", 'entity');
+// Suppression de donnees
+Router::setRoute("/del/(.+)/([0-9]+)", "Controller", "del", 'entity, id');

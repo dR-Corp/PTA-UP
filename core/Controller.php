@@ -2,9 +2,8 @@
 class Controller
 {
     public function add($params) {
+
         extract($params); // entity
-        // echo "<pre>"; print_r($params);
-        // echo "<pre>"; print_r($_POST); exit;
 
         if(count($_POST) == (new $entity)->count_fillable()) {
             $res = $entity::create($_POST);
@@ -22,7 +21,27 @@ class Controller
 
     }
 
-    public function SPPData($params) {
+    public function del($params) {
+        
+        extract($params); // entity
+
+        if(is_numeric($id)) {
+            $res = ($entite::find($id))->delete();
+            if($res->getId()) {
+                $alert = [ "alert" => "success", "message" => "Suppression effectué !" ];
+            }
+            else {
+                $alert = [ "alert" => "danger", "message" => "Une erreur est survenue !" ];
+            }
+        } else {
+            $alert = [ "alert" => "warning", "message" => "Cette opération ne peut être effectuée" ];
+        }
+        
+        echo json_encode($alert, JSON_UNESCAPED_UNICODE);
+
+    }
+
+    public function dataSPP($params) {
 
         extract($params); // $entite
         

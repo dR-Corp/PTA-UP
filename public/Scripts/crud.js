@@ -137,25 +137,21 @@ $(function () {
 
                 var data = JSON.parse(data);
 
-                console.log(data);
+                // si tout s'est bien passé on fait disparaitre le modal
+                if(data.alert == "success") $('#addModal').modal('hide');
                 
                 datatable.ajax.reload(null, true);
-                // $('#datatable').DataTable().ajax.reload(null, true);
 
-                //En cas de succès envoyer une alert
-                // const Toast = Swal.mixin({
-                //     toast: true,
-                //     position: 'top-end',
-                //     showConfirmButton: false,
-                //     timer: 3000
-                // });
-                // Toast.fire({
-                //     icon: 'success',
-                //     title: 'Article ajoutée avec succès !'
-                // });
-
-                // le modal ne doit disparaitre que si tout s'est bien passé, afin de pouvoir retrouver les données et faire directement un autre essai
-                // $('#addModal').modal('hide');
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 5000
+                });
+                Toast.fire({
+                    icon: data.alert,
+                    title: data.message
+                });
                       
             }
         });

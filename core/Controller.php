@@ -6,15 +6,19 @@ class Controller
         // echo "<pre>"; print_r($params);
         // echo "<pre>"; print_r($_POST); exit;
 
-        if(count($_POST)) {
-            echo json_encode($entity::create($_POST), JSON_UNESCAPED_UNICODE);
+        if(count($_POST) == (new $entity)->count_fillable()) {
+            $res = $entity::create($_POST);
+            if($res->getId()) {
+                $alert = [ "alert" => "success", "message" => "Ajout effectué !" ];
+            }
+            else {
+                $alert = [ "alert" => "danger", "message" => "Une erreur est survenue !" ];
+            }
         } else {
-            echo json_encode([
-                "alert" => "error",
-                "message" => "Veuillez remplir tous les champs",
-            ], JSON_UNESCAPED_UNICODE);
+            $alert = [ "alert" => "warning", "message" => "Veuillez remplir tous les champs" ];
         }
 
+        echo json_encode($alert, JSON_UNESCAPED_UNICODE);
 
     }
 

@@ -23,6 +23,10 @@ class Model {
     public function fillable() {
         return $this->fillable;
     }
+    
+    public function count_fillable() {
+        return count($this->fillable);
+    }
 
     private static function getSnakeCaseName($className) {
         $className = preg_replace('/([a-z])([A-Z])/', '$1_$2', $className."s"); // Convertir CamelCase en snake_case

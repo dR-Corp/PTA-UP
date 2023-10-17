@@ -110,6 +110,22 @@ class Model {
     }
 
     /**
+     * Reciproque de la function précédente
+     * @return $data array Le tableau de données de base qui avait été assigné au niveau de la function hydrate
+     */
+    public function reciprocHydrate() {
+        
+        $data = [];
+        $data["id"] = $this->getId();
+        foreach ($this->fillable as $attribute) {
+            $methode = 'get' . ucfirst($attribute);
+            $data[$attribute] = $this->$methode();
+        }
+        
+        return $data;
+    }
+
+    /**
      * Méthode permettant de savoir si l'élément du modèle est nouveau ou non.
      * @return bool
      */
@@ -134,6 +150,7 @@ class Model {
         $connection = new DBConn("$tableName");
         if($id = $connection->create($instance->attributes)) {
             $instance->hydrate(["id" => $id]);
+            
             return $instance;
         }
         return null;
@@ -243,14 +260,16 @@ class Model {
         $id = $this->id() ?? null;
 
         if ($id !== null) {
-            if($this->connection->delete($id)) {
+
+            if($this->referenced())
+                return null;
+
+            if($this->connection->delete($id))
                 return $this;
-            }
-            return null;
+        
         }
 
-        throw new Exception("Vous ne pouvez pas supprimer un élément qui n'existe pas !", 1);
-        return false;
+        return null;
     }
 
 }

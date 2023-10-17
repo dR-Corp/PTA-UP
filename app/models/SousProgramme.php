@@ -33,6 +33,15 @@ class SousProgramme extends Model {
         return self::$attributs;
     }
 
+    public function referenced() {
+        if(ObjectifsSpecifique::where("sous_programme_ID","=",$this->getId()))
+            return true;
+        else
+            return false;
+    }
+    
     // i'm going to manage here all the relation, in the other modals
+
+    
     
 }

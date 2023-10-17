@@ -73,6 +73,34 @@
 </section>
 <!-- /.content -->
 
+<?php
+function generateSelectOptions($filtered_class, $filtered_name) {
+    $attributes = $filtered_class::attributs();
+    foreach ($attributes as $attribute): ?>
+        <?php if(isset($attribute['foreign_key']) && $attribute['foreign_key'] == true && $attribute['name'] != "annee_ID"): ?>
+
+            <?php generateSelectOptions($attribute['ref_class'], $attribute['name']); ?>
+
+            <div class="form-group">
+                <label for="titre"><?= $attribute['lib'] ?></label>
+                <?php
+                    if(in_array('annee_ID', (new $attribute['ref_class'])->fillable()))
+                        $elements = $attribute['ref_class']::whereAll([["annee_ID", "=", Annee::active()->getId()]]);
+                    else
+                        $elements = $attribute['ref_class']::all();
+                ?>
+                <select class="form-control select2 custom-select filter_class" id="<?= $attribute['name'] ?>" <?= $attribute['required'] ?> data-foreign-key="<?= $attribute['name'] ?>" data-filtered-class="<?= $filtered_class ?>" data-filtered-name="<?= $filtered_name ?>">
+                    <option value=""></option>
+                    <?php foreach($elements as $value): ?>
+                        <option value="<?= $value->getId() ?>"><?= $value->getCode() ? $value->getCode() : $value->getLibelle() ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; 
+    endforeach;
+}
+?>
+
 <!-- addModal -->
 <div class="modal fade" id="addModal">
     <div class="modal-dialog modal-md ">
@@ -90,32 +118,71 @@
                 <?php foreach ($attributs as $attribut): ?>
                     <div class="form-group">
                         <?php if($attribut['fillable']): ?>
-                            <label for="titre"><?= $attribut['lib'] ?></label>
                             <?php if($attribut['input_type'] == "text"): ?>
+                            <div class="form-group">
+                                <label for="titre"><?= $attribut['lib'] ?></label>
                                 <input type="text" class="form-control" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?> />
+                            </div>
                             <?php elseif($attribut['input_type'] == "textarea"): ?>
+                            <div class="form-group">
+                                <label for="titre"><?= $attribut['lib'] ?></label>
                                 <textarea name="values[liens]" id="liens" cols="30" rows="3" class="form-control" <?= $attribut['required'] ?>></textarea>
+                            </div>
                             <?php elseif($attribut['input_type'] == "number"): ?>
+                            <div class="form-group">
+                                <label for="titre"><?= $attribut['lib'] ?></label>
                                 <input type="number" class="form-control" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?> />
+                            </div>
                             <?php elseif($attribut['input_type'] == "password"): ?>
+                            <div class="form-group">
+                                <label for="titre"><?= $attribut['lib'] ?></label>
                                 <input type="password" class="form-control" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?> />
+                            </div>
                             <?php elseif($attribut['input_type'] == "select"): ?>
-                                <select class="form-control select2 custom-select" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?>>
-                                    <option value=""></option>
-                                    <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key'] == true): ?>
-                                        <?php foreach($attribut['ref_class']::all() as $value): ?>
-                                            <option value="<?= $value->getId() ?>"><?= $value->getCode() ? $value->getCode() : $value->getLibelle() ?></option>
-                                        <?php endforeach; ?>
+                                <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key'] == true): ?>
+
+                                    <?php generateSelectOptions($attribut['ref_class'], $attribut['name']); ?>
+
+                                    <?php
+                                        if(in_array('annee_ID', (new $attribut['ref_class'])->fillable()))
+                                            $elements = $attribut['ref_class']::whereAll([["annee_ID", "=", Annee::active()->getId()]]);
+                                        else
+                                            $elements = $attribut['ref_class']::all();
+                                    ?>
+
+                                    <!-- les parents consécutifs antérieurs -->
+                                    <div class="form-group">
+                                        <label for="titre"><?= $attribut['lib'] ?></label>
+                                        <select class="form-control select2 custom-select" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?>>
+                                            <option value=""></option>
+                                            <?php foreach($elements as $value): ?>
+                                                <option value="<?= $value->getId() ?>"><?= $value->getCode() ? $value->getCode() : $value->getLibelle() ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <!-- le foreign key -->
                                     <?php else: ?>
-                                        <?php foreach($attribut['input_values'] as $id => $lib): ?>
-                                            <option value="<?= $id ?>"><?= $lib ?></option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
+                                    <div class="form-group">
+                                        <label for="titre"><?= $attribut['lib'] ?></label>
+                                        <select class="form-control select2 custom-select" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?>>
+                                            <option value=""></option>
+                                            <?php foreach($attribut['input_values'] as $id => $lib): ?>
+                                                <option value="<?= $id ?>"><?= $lib ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                <?php endif; ?>
                             <?php elseif($attribut['input_type'] == "checkbox"): ?>
+                            <div class="form-group">
+                                <label for="titre"><?= $attribut['lib'] ?></label>
                                 <input type="checkbox" name="" id="">
+                            </div>
                             <?php elseif($attribut['input_type'] == "radio"): ?>
+                            <div class="form-group">
+                                <label for="titre"><?= $attribut['lib'] ?></label>
                                 <input type="radio" name="" id="">
+                            </div>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>
@@ -125,7 +192,14 @@
             </div>
 
             <div class="modal-footer justify-content-between">
-                <button id="addBtn" class="btn btn-block btn-outline-primary">Créer</button>
+                <div class="row w-100">
+                    <div class="col-sm-6">
+                        <button id="addBtn" class="btn btn-block btn-outline-primary">Créer</button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button type="button" class="btn btn-block btn-outline-secondary" data-dismiss="modal">Annuler</button>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -184,7 +258,14 @@
             </div>
 
             <div class="modal-footer justify-content-between">
-                <button id="updateBtn" class="btn btn-block btn-outline-warning">Modifier</button>
+                <div class="row w-100">
+                    <div class="col-sm-6">
+                        <button id="updateBtn" class="btn btn-block btn-outline-warning text-black">Modifier</button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button type="button" class="btn btn-block btn-outline-secondary" data-dismiss="modal">Annuler</button>
+                    </div>
+                </div>
             </div>
         
         </div>
@@ -197,29 +278,29 @@
 <div class="modal fade" id="deleteModal">
     <div class="modal-dialog">
         <div class="modal-content">
-        <div class="modal-header bg-light">
-            <h4 class="modal-title">Suppression</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body mt-3">
-            <div class="container">
-                <p>Voulez vous procéder à la suppression de cet élément ?</p>
+            <div class="modal-header bg-light">
+                <h4 class="modal-title">Suppression</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-        </div>
-        <div class="modal-footer justify-content-between">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <button id="deleteBtn" type="button" class="btn btn-block btn-outline-danger" data-dismiss="modal">Oui</button>
-                    </div>
-                    <div class="col-sm-6">
-                        <button type="button" class="btn btn-block btn-outline-secondary" data-dismiss="modal">Non</button>
+            <div class="modal-body mt-3">
+                <div class="container">
+                    <p>Voulez vous procéder à la suppression de cet élément ?</p>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button id="deleteBtn" type="button" class="btn btn-block btn-outline-danger" data-dismiss="modal">Oui</button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-block btn-outline-secondary" data-dismiss="modal">Non</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
         <!-- /.modal-content -->
     </div>

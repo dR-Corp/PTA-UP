@@ -1,32 +1,99 @@
 $(function () {
 
     // INITIALISATION DE PARAMETRES UTILES
-    var entity = $('#entity').val();
-    var attributs = JSON.parse($('#attributs').val());
+    var entity = $('#entity') ? $('#entity').val() : "";
+    var attributs = $('#attributs') ? JSON.parse($('#attributs').val()) : "";
+    // var foreign_key = $('#foreign_key') ? $('#foreign_key').val() : "";
+    // var filter_id = $('#filter_id') ? $('#filter_id').val() : "";
 
     //  AFFICHAGE DU FORMULAIRE D'AJOUT
     $(document).on('click', '.addBtn', function(){
         $('#addModal').modal('show');
     });
 
+    // GESTION DU FILTER
+    
+    /**
+     * 
+     * ON PARTIRA SUR :
+     * => 01 FILTER
+     * id : filter_id
+     * class : filter_class
+     * => 01 FILTERED
+     * id : filtered_id
+     * class : filtered_class
+     * 
+     * C'est lors de l'événement change sur le select de l'élément FILTER que le filtrage se produit
+     * Le filtrage à pour objectif de modifier les items de l'élément FILTERED
+     * 
+     */
+
+    $(".filter_class").change(function() {
+
+        var $selectElement = $(this);
+        
+        var filtered_entity = $(this).attr("data-filtered-class");
+        var foreign_key = $(this).attr("data-foreign-key");
+        var filtered_name = $(this).attr("data-filtered-name");
+        var filter_id = $(this).val();
+
+        console.log("filtered_entity :", filtered_entity);
+        console.log("foreign_key :", foreign_key);
+        console.log("filtered_name :", filtered_name);
+        console.log("filter_id :", filter_id);
+
+        console.log("/filter/"+filtered_entity+"/"+foreign_key+"/"+filter_id);
+
+        $.ajax({
+            type: "GET",
+            url: "/filter/"+filtered_entity+"/"+foreign_key+"/"+filter_id,
+            data: {},
+            success: function(data) {
+
+                data = JSON.parse(data);
+
+                // Assuming the data is an array of objects with 'text' and 'value' properties
+                var filtered_element = $("#"+filtered_name);
+                // var filtered_element = $selectElement.closest('.form-group').next().find('select');
+
+                filtered_element.empty(); // Clear the select options
+                filtered_element.append($('<option value=""></option>'));
+
+                $.each(data, function(index, option) {
+                    filtered_element.append($('<option></option>')
+                        .attr("value", option.id)
+                        .text(option.code ? option.code : option.libelle));
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error("Error: " + error);
+            }
+        });
+
+    });
+
+    // FIN GESTION DU FILTER
+
     // LES COLONNES
     var columns = [];
     var hidden_cols = [];
-    var index = 0;
-    attributs.forEach((attribut) => {
+    var col_i = 0;
+    attributs.forEach((attribut, index) => {
         if(!attribut.fillable || (attribut.fillable && attribut.input_type != 'password')) {
+            
             if(attribut.foreign_key) {
                 columns.push({"data": attribut.name})
                 columns.push({"data": attribut.ref+'_'+attribut.ref_lib})
-                hidden_cols.push(index)
+                hidden_cols.push(col_i)
+                col_i++;
             }
             else {
                 columns.push({"data": attribut.name})
             }
-            index++;
+            col_i++;
         }
     });
-    
+
     columns.push(
         {
             "data": null,
@@ -43,7 +110,7 @@ $(function () {
         "serverSide": true,
         "processing": true,
         "deferRender": true,
-        "stateSave": true,
+        "stateSave": false,
         "drawCallback": function (setting, json) {
 
             console.log("all data are loaded into table");
@@ -280,5 +347,6 @@ $(function () {
             }
         }
     }
+    
 
 })

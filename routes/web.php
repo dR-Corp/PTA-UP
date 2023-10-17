@@ -21,17 +21,29 @@ Router::setRoute("/home", "HomeController", "index");
 
 // USERS
 Router::setRoute("/users", "UserController", "index");
-Router::setRoute("/users-create", "UserController", "create");
-Router::setRoute("/users-update", "UserController", "update");
-Router::setRoute("/users-delete", "UserController", "delete");
-Router::setRoute("/users-delete", "UserController", "delete");
-Router::setRoute("/users/(.+)/([0-9]+)", "UserController", "delete", "name,id");
+Router::setRoute("/profil", "UserController", "profil");
 
 // SOUS PROGRAMMES
 Router::setRoute("/spgrm", "SousProgController", "index");
 
 // STRUCTURES
 Router::setRoute("/structures", "StructureController", "index");
+
+// ANNEES
+Router::setRoute("/annees", "AnneeController", "index");
+
+// OBJECTIFS
+Router::setRoute("/objectifs", "ObjectifController", "index");
+
+// ACTIONS
+Router::setRoute("/actions", "ActionController", "index");
+
+// ACTIVITES
+Router::setRoute("/activites", "ActiviteController", "index");
+
+// TACHES
+Router::setRoute("/taches", "TacheController", "index");
+
 
 // Recuperation de donnees
 Router::setRoute("/data/(.+)", "Controller", "dataSPP", 'entity');
@@ -41,3 +53,5 @@ Router::setRoute("/add/(.+)", "Controller", "add", 'entity');
 Router::setRoute("/edit/(.+)/([0-9]+)", "Controller", "edit", 'entity,id');
 // Suppression de donnees
 Router::setRoute("/del/(.+)/([0-9]+)", "Controller", "del", 'entity,id');
+// Filtre de donnees
+Router::setRoute("/filter/(.+)/(.+)/([0-9]*)", "Controller", "filter", 'entity,foreign_key,filter_id');

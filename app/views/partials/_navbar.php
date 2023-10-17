@@ -5,11 +5,18 @@
         <a class="nav-link text-white" data-widget="pushmenu" role="button"><i class="fas fa-bars"></i></a>
       </li>
     </ul>
+    
+    <?php
+      if(isset($_POST["selected_annee"]) && !empty($_POST["selected_annee"])) {
+        $_SESSION["selected_annee"] = $_POST["selected_annee"];
+        unset($_POST["selected_annee"]);
+      }
+    ?>
 
     <!-- Academic year change select -->
     <form method="post" action="<?php $_SERVER['PHP_SELF'] ?>" class="form-inline ml-3" id="year_change">
       <div class="input-group input-group-sm">
-        <select class="form-control form-control-navbar custom-select" name="anneeAcad" id="anneeAcad">
+        <select class="form-control form-control-navbar custom-select" name="selected_annee" id="selected_annee">
           <option value=""></option>
           <?php foreach(Annee::all() as $annee): ?>
           <option <?php if($annee->getId() == Annee::active()->getId()) echo 'selected'?> value="<?php echo $annee->getId() ?>"><?php echo $annee->getLibelle() ?></option>
@@ -17,6 +24,14 @@
         </select>
       </div>
     </form>
+
+    <script>
+      $("#selected_annee").on("change", function() {
+        if($(this).val() != "") {
+          $("#year_change").submit();
+        }
+      });
+    </script>
     
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">    
@@ -39,15 +54,11 @@
                 <div class="d-block font-weight-bold" style="color: #044687;">Nom Prenom</div>
           </span>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item">
+          <a href="/profil" class="dropdown-item">
             <i class="fas fa-user mr-2"></i> Profil
           </a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item">
-            <i class="fas fa-sliders-h mr-2"></i> Paramètres
-          </a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item">
+          <a href="/logout" class="dropdown-item">
             <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
           </a>
         </div>

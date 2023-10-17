@@ -18,4 +18,17 @@ class UserController extends Controller
 
     }
 
+    public function profil($params) {
+
+        $view = new PageView('user/profil');
+
+        // à ce niveau on doit envoyer le user connecté
+        // pour le moment on ne va envoyer que le user 0
+
+        $view->render([
+            "titrePage" => "Profil",
+            "user" => (User::first()),
+        ]);
+    }
+
 }

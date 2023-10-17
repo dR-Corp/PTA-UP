@@ -2,6 +2,66 @@
 class Controller
 {
 
+    
+    private static function getSnakeCaseName($className) {
+        $className = preg_replace('/([a-z])([A-Z])/', '$1_$2', $className."s"); // Convertir CamelCase en snake_case
+        $className = strtolower($className); // Convertir en minuscules
+        return $className;
+    }
+
+    public function filter($params) {
+        
+        extract($params); // entity, foreign_key, filter_id
+        $data = [];
+
+        $conditions = [];
+        if(in_array('annee_ID', (new $entity)->fillable())) {
+            $conditions[] = ["annee_ID", "=", Annee::active()->getId()];
+        }
+        if($filter_id) {
+            $conditions[] = [$foreign_key, "=", $filter_id];
+        }
+        
+        $data = $entity::whereAll($conditions);
+
+        // if (!empty($conditions)) {
+        //     $data = $entity::whereAll($conditions);
+        // } else {
+        //     $data = $entity::all();
+        // }
+
+        // if(in_array('annee_ID', (new $entity)->fillable())) {
+        //     if($filter_id) {
+        //         $data = $entity::whereAll([
+        //             ["annee_ID", "=", Annee::active()->getId()],
+        //             [$foreign_key, "=", $filter_id]
+        //         ]);
+        //     }
+        //     else {
+        //         $data = $entity::whereAll([
+        //             ["annee_ID", "=", Annee::active()->getId()]
+        //         ]);
+        //     }
+        // }
+        // else {
+        //     if($filter_id) {
+        //         $data = $entity::whereAll([
+        //             [$foreign_attr, "=", $filter_id]
+        //         ]);
+        //     }
+        //     else {
+        //         $data = $entity::all();
+        //     }
+        // }
+
+        $result = [];
+        foreach ($data as $element) {
+            $result[] = $element->reciprocHydrate();
+        }
+        print_r(json_encode($result));
+
+    }
+
     public function empty_field($entity) {
         $empty_field = false;
         foreach ($entity::attributs() as $attribut) {
@@ -16,16 +76,19 @@ class Controller
     public function add($params) {
 
         extract($params); // entity
-
+        if(in_array('annee_ID', (new $entity)->fillable())) $_POST['annee_ID'] = Annee::active()->getId();
         if(count($_POST) == (new $entity)->count_fillable() && !$this->empty_field($entity)) {
+
+            
             $res = $entity::create($_POST);
+
             if($res->getId()) {
                 $alert = [ "alert" => "success", "message" => "Ajout effectué !" ];
             }
             else {
-                $alert = [ "alert" => "danger", "message" => "Une erreur est survenue !" ];
+                $alert = [ "alert" => "error", "message" => "Une erreur est survenue !" ];
             }
-        } 
+        }
         else {
             $alert = [ "alert" => "warning", "message" => "Veuillez remplir tous les champs !" ];
         }
@@ -39,21 +102,16 @@ class Controller
         extract($params); // entity
 
         if(is_numeric($id)) {
-            if(count($_POST) == (new $entity)->count_fillable() && !$this->empty_field($entity)) {
-                $res = ($entity::find($id))->update($_POST);
-                if($res->getId()) {
-                    $alert = [ "alert" => "success", "message" => "Modification effectuée !" ];
-                }
-                else {
-                    $alert = [ "alert" => "danger", "message" => "Une erreur est survenue !" ];
-                }
-            } 
+            $res = ($entity::find($id))->update($_POST);
+            if($res->getId()) {
+                $alert = [ "alert" => "success", "message" => "Modification effectuée !" ];
+            }
             else {
-                $alert = [ "alert" => "warning", "message" => "Veuillez remplir tous les champs !" ];
+                $alert = [ "alert" => "warning", "message" => "Une erreur est survenue !" ];
             }
         } 
         else {
-            $alert = [ "alert" => "warning", "message" => "Cette opération ne peut être effectuée" ];
+            $alert = [ "alert" => "error", "message" => "Cette opération ne peut être effectuée" ];
         }
         
         echo json_encode($alert, JSON_UNESCAPED_UNICODE);
@@ -66,15 +124,15 @@ class Controller
 
         if(is_numeric($id)) {
             $res = ($entity::find($id))->delete();
-            if($res->getId()) {
+            if($res && $res->getId()) {
                 $alert = [ "alert" => "success", "message" => "Suppression effectuée !" ];
             }
             else {
-                $alert = [ "alert" => "danger", "message" => "Une erreur est survenue !" ];
+                $alert = [ "alert" => "warning", "message" => "Cette opération ne peut être effectuée !" ];
             }
         } 
         else {
-            $alert = [ "alert" => "warning", "message" => "Cette opération ne peut être effectuée" ];
+            $alert = [ "alert" => "error", "message" => "Une erreur est survenue !" ];
         }
         
         echo json_encode($alert, JSON_UNESCAPED_UNICODE);
@@ -121,75 +179,17 @@ class Controller
                 }
             }
         endforeach;
-        
-        // echo "<pre>"; print_r($columns); exit;
-        // echo "<pre>"; print_r($joined); exit;
-        
+                
         $sql_details = "";
         $whereResult = null;
         $whereAll = null;
 
+        if(in_array('annee_ID', (new $entity)->fillable()))
+            $whereAll = $entity_table.'.`annee_ID` = '.Annee::active()->getId();
+
         $data = SSP::complex($_GET, $sql_details, $table, $primaryKey, $columns, $whereResult, $whereAll, $joined);
     
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
-
-    }
-
-    public function SPPData__($params) {
-        
-        // DB table to use
-        $table = 'sous_programmes';
-        
-        // Table's primary key
-        $primaryKey = 'id';
-
-        $columns = array(
-            array( 'db' => 'id', 'dt' => 'id' ),
-            array( 'db' => 'libelle', 'dt' => 'libelle' ),
-            // array(
-            //     'db'        => 'enregistre_par',
-            //     'dt'        => 'enregistre_par',
-            //     'formatter' => function( $d, $row) {
-            //         include('db_connect.php');
-            //         $req = "SELECT * FROM users WHERE id = '$d' ";
-            //         return $db->query($req)->fetch(PDO::FETCH_ASSOC)['login'];
-            //     }
-            // ),
-            // array(
-            //     'db'        => 'validation',
-            //     'dt'        => 'validation2',
-            //     'formatter' => function( $d, $row ) {
-            //         if($d == 1) {
-            //             return '<span class="badge badge-success">ACCEPTE</span>';
-            //         }
-            //         else {
-            //             return '<span class="badge badge-warning">EN ATTENTE</span>';
-            //         }
-            //     }
-            // ),
-    
-        );
-        
-        // SQL server connection information
-        $sql_details = array(
-            'user' => 'root',
-            'pass' => '154826',
-            'db'   => 'pta',
-            'host' => 'localhost'
-        );
-        
-        // $req = "SELECT * FROM annee ORDER BY code DESC LIMIT 1";
-        // $annee_academique = $db->query($req)->fetch(PDO::FETCH_ASSOC)['code'];
-        
-        // $entite = $_SESSION['entite'];
-        
-        // $where = "annee_academique='$annee_academique' AND etablissement_sollicite = '$entite'";
-        $where = "";
-        $sous_programmes = SSP::complex($_GET, $sql_details, $table, $primaryKey, $columns, null, $where);
-
-        echo "<pre>"; print_r($sous_programmes); 
-    
-        // echo json_encode($demandes, JSON_UNESCAPED_UNICODE);
 
     }
     

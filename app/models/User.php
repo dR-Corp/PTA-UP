@@ -71,26 +71,36 @@ class User extends Model {
         ],
 
     ];
+
+    public function structure() {
+        return Structure::find($this->getId());
+    }
     
     public static function attributs() {
         return self::$attributs;
     }
 
     // the password must be hash
-
     public static function create(array $attributes = [])
     {
+        
         if(isset($attributes['password'])) 
             $attributes['password'] = sha1($attributes['password']);
-        parent::create($attributes = []);
+        
+        return parent::create($attributes);
+
     }
 
     public function update(array $attributes = [])
     {
+
         if(isset($attributes['password'])) 
             $attributes['password'] = sha1($attributes['password']);
+        else {
+            unset($attributes['password']);
+        }
 
-        parent::update($attributes = []);
+        return parent::update($attributes);
         
     }
 

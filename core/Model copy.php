@@ -3,7 +3,7 @@
  * 
  * class Structure
  */
-class Model {
+class Model_copy {
 
     
     protected $connection;

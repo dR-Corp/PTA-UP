@@ -160,7 +160,7 @@ class DBConn {
         $stmt = $this->db->prepare($sql);
         $this->bindParams($stmt, $params);
         $stmt->execute();
-
+        
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $result ? $result : [];
     }

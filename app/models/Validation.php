@@ -52,7 +52,7 @@ class Validation extends Model {
             'primary_key' => false,
             'auto_increment' => false,
             'fillable' => true,
-            'input_type' => 'text',
+            'input_type' => 'checkbox',
             'required' => 'required'
         ],
 

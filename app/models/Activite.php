@@ -84,4 +84,11 @@ class Activite extends Model {
 
     // ALL NEEDABLE RELATION BELOW
     
+    public function referenced() {
+        if(Tache::where("activite_ID","=",$this->getId()))
+            return true;
+        else
+            return false;
+    }
+    
 }

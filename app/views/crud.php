@@ -99,6 +99,31 @@ function generateSelectOptions($filtered_class, $filtered_name) {
         <?php endif; 
     endforeach;
 }
+function generateSelectUpdateOptions($filtered_class, $filtered_name) {
+    $attributes = $filtered_class::attributs();
+    foreach ($attributes as $attribute): ?>
+        <?php if(isset($attribute['foreign_key']) && $attribute['foreign_key'] == true && $attribute['name'] != "annee_ID"): ?>
+
+            <?php generateSelectOptions($attribute['ref_class'], $attribute['name']); ?>
+
+            <div class="form-group">
+                <label for="titre"><?= $attribute['lib'] ?></label>
+                <?php
+                    if(in_array('annee_ID', (new $attribute['ref_class'])->fillable()))
+                        $elements = $attribute['ref_class']::whereAll([["annee_ID", "=", Annee::active()->getId()]]);
+                    else
+                        $elements = $attribute['ref_class']::all();
+                ?>
+                <select class="form-control select2 custom-select m_filter_class" id="m_<?=$attribute['name']?>" <?= $attribute['required'] ?> data-foreign-key="<?= $attribute['name'] ?>" data-filtered-class="<?= $filtered_class ?>" data-filtered-name="<?= $filtered_name ?>">
+                    <option value=""></option>
+                    <?php foreach($elements as $value): ?>
+                        <option value="<?= $value->getId() ?>"><?= $value->getCode() ? $value->getCode() : $value->getLibelle() ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; 
+    endforeach;
+}
 ?>
 
 <!-- addModal -->
@@ -162,7 +187,7 @@ function generateSelectOptions($filtered_class, $filtered_name) {
                                     </div>
 
                                     <!-- le foreign key -->
-                                    <?php else: ?>
+                                <?php else: ?>
                                     <div class="form-group">
                                         <label for="titre"><?= $attribut['lib'] ?></label>
                                         <select class="form-control select2 custom-select" id="<?= $attribut['name'] ?>" <?= $attribut['required'] ?>>
@@ -230,10 +255,10 @@ function generateSelectOptions($filtered_class, $filtered_name) {
                                 <textarea name="values[liens]" id="liens" cols="30" rows="3" class="form-control" <?= $attribut['required'] ?>></textarea>
                             <?php elseif($attribut['input_type'] == "number"): ?>
                                 <input type="number" class="form-control" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?> />
-                            <?php elseif($attribut['input_type'] == "password"): ?>
+                            <?php elseif($attribut['input_type'] == "password"): ?> 
                                 <input type="password" class="form-control" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?> />
                             <?php elseif($attribut['input_type'] == "select"): ?>
-                                <select class="form-control select2 custom-select" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?>>
+                                <!-- <select class="form-control select2 custom-select" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?>>
                                     <option value=""></option>
                                     <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key'] == true): ?>
                                         <?php foreach($attribut['ref_class']::all() as $value): ?>
@@ -244,7 +269,43 @@ function generateSelectOptions($filtered_class, $filtered_name) {
                                             <option value="<?= $id ?>"><?= $lib ?></option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
-                                </select>
+                                </select> -->
+
+                                <?php if(isset($attribut['foreign_key']) && $attribut['foreign_key'] == true): ?>
+
+                                    <?php generateSelectUpdateOptions($attribut['ref_class'], $attribut['name']); ?>
+
+                                    <?php
+                                        if(in_array('annee_ID', (new $attribut['ref_class'])->fillable()))
+                                            $elements = $attribut['ref_class']::whereAll([["annee_ID", "=", Annee::active()->getId()]]);
+                                        else
+                                            $elements = $attribut['ref_class']::all();
+                                    ?>
+
+                                    <!-- les parents consécutifs antérieurs -->
+                                    <div class="form-group">
+                                        <label for="titre"><?= $attribut['lib'] ?></label>
+                                        <select class="form-control select2 custom-select" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?>>
+                                            <option value=""></option>
+                                            <?php foreach($elements as $value): ?>
+                                                <option value="<?= $value->getId() ?>"><?= $value->getCode() ? $value->getCode() : $value->getLibelle() ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <!-- le foreign key -->
+                                <?php else: ?>
+                                    <div class="form-group">
+                                        <label for="titre"><?= $attribut['lib'] ?></label>
+                                        <select class="form-control select2 custom-select" id="m_<?=$attribut['name']?>" <?= $attribut['required'] ?>>
+                                            <option value=""></option>
+                                            <?php foreach($attribut['input_values'] as $id => $lib): ?>
+                                                <option value="<?= $id ?>"><?= $lib ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                <?php endif; ?>
+
                             <?php elseif($attribut['input_type'] == "checkbox"): ?>
                                 <input type="checkbox" name="" id="">
                             <?php elseif($attribut['input_type'] == "radio"): ?>

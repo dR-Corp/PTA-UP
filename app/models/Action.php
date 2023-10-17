@@ -96,5 +96,11 @@ class Action extends Model {
     }
 
     // ALL NEEDABLE RELATION BELOW
+    public function referenced() {
+        if(Activite::where("action_ID","=",$this->getId()))
+            return true;
+        else
+            return false;
+    }
     
 }

@@ -34,7 +34,8 @@ class Annee extends Model {
     }
 
     public function referenced() {
-        if(ObjectifsSpecifique::where("sous_programme_ID","=",$this->getId()))
+        
+        if(ObjectifsSpecifique::where("annee_ID","=",$this->getId()))
             return true;
         else
             return false;

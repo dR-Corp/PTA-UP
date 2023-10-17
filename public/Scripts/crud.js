@@ -37,13 +37,6 @@ $(function () {
         var filtered_name = $(this).attr("data-filtered-name");
         var filter_id = $(this).val();
 
-        console.log("filtered_entity :", filtered_entity);
-        console.log("foreign_key :", foreign_key);
-        console.log("filtered_name :", filtered_name);
-        console.log("filter_id :", filter_id);
-
-        console.log("/filter/"+filtered_entity+"/"+foreign_key+"/"+filter_id);
-
         $.ajax({
             type: "GET",
             url: "/filter/"+filtered_entity+"/"+foreign_key+"/"+filter_id,
@@ -51,11 +44,44 @@ $(function () {
             success: function(data) {
 
                 data = JSON.parse(data);
-
-                // Assuming the data is an array of objects with 'text' and 'value' properties
+                
                 var filtered_element = $("#"+filtered_name);
                 // var filtered_element = $selectElement.closest('.form-group').next().find('select');
+                filtered_element.empty(); // Clear the select options
+                filtered_element.append($('<option value=""></option>'));
 
+                $.each(data, function(index, option) {
+                    filtered_element.append($('<option></option>')
+                        .attr("value", option.id)
+                        .text(option.code ? option.code : option.libelle));
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error("Error: " + error);
+            }
+        });
+
+    });
+
+    $(".m_filter_class").change(function() {
+
+        var $selectElement = $(this);
+        
+        var filtered_entity = $(this).attr("data-filtered-class");
+        var foreign_key = $(this).attr("data-foreign-key");
+        var filtered_name = $(this).attr("data-filtered-name");
+        var filter_id = $(this).val();
+
+        $.ajax({
+            type: "GET",
+            url: "/filter/"+filtered_entity+"/"+foreign_key+"/"+filter_id,
+            data: {},
+            success: function(data) {
+                
+                data = JSON.parse(data);
+                
+                var filtered_element = $("#m_"+filtered_name);
+                // var filtered_element = $selectElement.closest('.form-group').next().find('select');
                 filtered_element.empty(); // Clear the select options
                 filtered_element.append($('<option value=""></option>'));
 
